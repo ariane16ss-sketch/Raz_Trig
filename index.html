@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memoria Trigonométrica Avanzada - Ángulos Notables</title>
+    <title>Memoria Trigonométrica - Notables y Cuadrantales</title>
     <style>
         :root {
             --primary: #6366f1;
@@ -37,7 +37,7 @@
             text-align: center;
         }
 
-        h1 { margin-top: 0; color: var(--secondary); }
+        h1 { margin-top: 0; color: var(--secondary); font-size: 1.6rem; }
 
         .header {
             display: flex;
@@ -55,7 +55,6 @@
             border-radius: 20px;
         }
 
-        /* Rejilla de juego: 4 columnas, se ajusta a 8 parejas (16 fichas) */
         .memory-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -72,7 +71,6 @@
             transition: transform 0.3s ease;
         }
 
-        /* Estado volteado: Solo rotación, sin espejo */
         .card.flipped {
             transform: rotateY(180deg);
         }
@@ -87,26 +85,24 @@
             align-items: center;
             border-radius: 10px;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             box-sizing: border-box;
+            padding: 5px;
         }
 
-        /* Cara trasera: Color sólido azul con signo ? */
         .card-front {
             background-color: var(--back-card);
             color: white;
             font-size: 2rem;
         }
 
-        /* Cara frontal (valor): Blanco, corregido para ser legible */
         .card-back {
             background-color: #ffffff;
             color: var(--text);
             border: 3px solid var(--primary);
-            transform: rotateY(180deg); /* Compensa la rotación del padre */
+            transform: rotateY(180deg);
         }
 
-        /* Estado emparejado */
         .card.matched .card-back {
             background-color: var(--correct) !important;
             color: white !important;
@@ -135,9 +131,9 @@
 
 <div class="game-container">
     <div id="start-screen">
-        <h1>🧠 Gran Desafío Trigonométrico</h1>
-        <p>Mismo mazo, diferentes preguntas. Empareja las razones con sus valores lo más rápido posible.</p>
-        <p style="font-size: 0.9rem; color: #666;">Se seleccionarán 8 parejas aleatorias de las 18 disponibles en cada jugada.</p>
+        <h1>🧠 Memoria Trigonométrica Avanzada</h1>
+        <p>Ángulos Notables (30°, 45°, 60°) y Cuadrantales (0°, 90°, 180°, 270°, 360°).</p>
+        <p style="font-size: 0.85rem; color: #666;">Nota: Las funciones no definidas se muestran como "N.D."</p>
         <button class="btn-action" onclick="startGame()">Comenzar Jugada</button>
     </div>
 
@@ -147,49 +143,80 @@
             <div class="stat-box">🎯 Parejas: <span id="matches">0</span> / 8</div>
         </div>
 
-        <div class="memory-grid" id="grid">
-            <!-- Las fichas se generarán aquí -->
-        </div>
+        <div class="memory-grid" id="grid"></div>
     </div>
 
     <div id="end-screen" class="hidden">
         <h2>🎉 ¡Jugada Completada!</h2>
         <p>Tu tiempo final fue:</p>
         <h1 id="final-time">0.00s</h1>
-        <button class="btn-action" onclick="startGame()">Siguiente Alumno (Nueva Combinación)</button>
+        <button class="btn-action" onclick="startGame()">Siguiente Alumno</button>
     </div>
 </div>
 
 <script>
-    // --- MAZO COMPLETO DE 18 PAREJAS (6 Funciones x 3 Ángulos) ---
+    // --- MAZO EXTENDIDO DE 48 PAREJAS ---
     const FULL_DECK = [
-        // SENO
+        // NOTABLES (30°, 45°, 60°)
         { id: 1, name: "sen(30°)" }, { id: 1, val: "1/2" },
         { id: 2, name: "sen(45°)" }, { id: 2, val: "√2/2" },
         { id: 3, name: "sen(60°)" }, { id: 3, val: "√3/2" },
-        // COSENO
         { id: 4, name: "cos(30°)" }, { id: 4, val: "√3/2" },
         { id: 5, name: "cos(45°)" }, { id: 5, val: "√2/2" },
         { id: 6, name: "cos(60°)" }, { id: 6, val: "1/2" },
-        // TANGENTE
         { id: 7, name: "tan(30°)" }, { id: 7, val: "√3/3" },
         { id: 8, name: "tan(45°)" }, { id: 8, val: "1" },
         { id: 9, name: "tan(60°)" }, { id: 9, val: "√3" },
-        // COSECANTE (recíproca sen)
         { id: 10, name: "csc(30°)" }, { id: 10, val: "2" },
         { id: 11, name: "csc(45°)" }, { id: 11, val: "√2" },
         { id: 12, name: "csc(60°)" }, { id: 12, val: "2√3/3" },
-        // SECANTE (recíproca cos)
         { id: 13, name: "sec(30°)" }, { id: 13, val: "2√3/3" },
         { id: 14, name: "sec(45°)" }, { id: 14, val: "√2" },
         { id: 15, name: "sec(60°)" }, { id: 15, val: "2" },
-        // COTANGENTE (recíproca tan)
         { id: 16, name: "cot(30°)" }, { id: 16, val: "√3" },
         { id: 17, name: "cot(45°)" }, { id: 17, val: "1" },
-        { id: 18, name: "cot(60°)" }, { id: 18, val: "√3/3" }
+        { id: 18, name: "cot(60°)" }, { id: 18, val: "√3/3" },
+
+        // CUADRANTALES (0°, 90°, 180°, 270°, 360°)
+        // Seno
+        { id: 19, name: "sen(0°)" }, { id: 19, val: "0" },
+        { id: 20, name: "sen(90°)" }, { id: 20, val: "1" },
+        { id: 21, name: "sen(180°)" }, { id: 21, val: "0" },
+        { id: 22, name: "sen(270°)" }, { id: 22, val: "-1" },
+        { id: 23, name: "sen(360°)" }, { id: 23, val: "0" },
+        // Coseno
+        { id: 24, name: "cos(0°)" }, { id: 24, val: "1" },
+        { id: 25, name: "cos(90°)" }, { id: 25, val: "0" },
+        { id: 26, name: "cos(180°)" }, { id: 26, val: "-1" },
+        { id: 27, name: "cos(270°)" }, { id: 27, val: "0" },
+        { id: 28, name: "cos(360°)" }, { id: 28, val: "1" },
+        // Tangente
+        { id: 29, name: "tan(0°)" }, { id: 29, val: "0" },
+        { id: 30, name: "tan(90°)" }, { id: 30, val: "N.D." },
+        { id: 31, name: "tan(180°)" }, { id: 31, val: "0" },
+        { id: 32, name: "tan(270°)" }, { id: 32, val: "N.D." },
+        { id: 33, name: "tan(360°)" }, { id: 33, val: "0" },
+        // Cosecante
+        { id: 34, name: "csc(0°)" }, { id: 34, val: "N.D." },
+        { id: 35, name: "csc(90°)" }, { id: 35, val: "1" },
+        { id: 36, name: "csc(180°)" }, { id: 36, val: "N.D." },
+        { id: 37, name: "csc(270°)" }, { id: 37, val: "-1" },
+        { id: 38, name: "csc(360°)" }, { id: 38, val: "N.D." },
+        // Secante
+        { id: 39, name: "sec(0°)" }, { id: 39, val: "1" },
+        { id: 40, name: "sec(90°)" }, { id: 40, val: "N.D." },
+        { id: 41, name: "sec(180°)" }, { id: 41, val: "-1" },
+        { id: 42, name: "sec(270°)" }, { id: 42, val: "N.D." },
+        { id: 43, name: "sec(360°)" }, { id: 43, val: "1" },
+        // Cotangente
+        { id: 44, name: "cot(0°)" }, { id: 44, val: "N.D." },
+        { id: 45, name: "cot(90°)" }, { id: 45, val: "0" },
+        { id: 46, name: "cot(180°)" }, { id: 46, val: "N.D." },
+        { id: 47, name: "cot(270°)" }, { id: 47, val: "0" },
+        { id: 48, name: "cot(360°)" }, { id: 48, val: "N.D." }
     ];
 
-    const PAIRS_PER_GAME = 8; // Número de parejas a emparejar en cada jugada
+    const PAIRS_PER_GAME = 8;
     let activeCards = [];
     let flippedCards = [];
     let matchedCount = 0;
@@ -197,22 +224,19 @@
     let startTime = 0;
     let elapsedTime = 0;
 
-    // --- FUNCIONES DE LÓGICA ---
-
-    // Mezcla aleatoria de un array
     function shuffle(array) {
         return array.sort(() => Math.random() - 0.5);
     }
 
-    // Selecciona N parejas aleatorias del mazo completo y las mezcla
     function selectRandomPairs() {
-        const uniqueIds = Array.from({ length: 18 }, (_, i) => i + 1);
+        // Seleccionar 8 IDs únicos de entre los 48 disponibles
+        const totalPairs = FULL_DECK.length / 2;
+        const uniqueIds = Array.from({ length: totalPairs }, (_, i) => i + 1);
         const shuffledIds = shuffle(uniqueIds);
         const selectedIds = shuffledIds.slice(0, PAIRS_PER_GAME);
 
         let gameDeck = [];
         selectedIds.forEach(id => {
-            // Busca la pareja correspondiente en el mazo completo
             const pair = FULL_DECK.filter(card => card.id === id);
             gameDeck.push(...pair);
         });
@@ -223,7 +247,6 @@
     function startGame() {
         matchedCount = 0;
         flippedCards = [];
-        // SELECCIÓN ALEATORIA DE PAREJAS EN CADA INICIO
         activeCards = selectRandomPairs();
         
         document.getElementById('start-screen').classList.add('hidden');
@@ -250,8 +273,6 @@
         clearInterval(timerInterval);
     }
 
-    // --- RENDERIZADO CORREGIDO ---
-
     function renderGrid() {
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
@@ -262,15 +283,12 @@
             cardEl.dataset.index = index;
             cardEl.dataset.id = cardData.id;
 
-            // CARA TRASERA (Lo que se ve al inicio: el signo ?)
             const faceFront = document.createElement('div');
             faceFront.classList.add('card-face', 'card-front');
             faceFront.innerText = '?';
 
-            // CARA FRONTAL (El valor: sen(30°), 1/2, etc.)
             const faceBack = document.createElement('div');
             faceBack.classList.add('card-face', 'card-back');
-            // Muestra .name o .val, lo que exista
             faceBack.innerText = cardData.name || cardData.val; 
 
             cardEl.appendChild(faceFront);
@@ -281,14 +299,12 @@
         });
     }
 
-    // --- LÓGICA DE JUEGO ---
-
     function flipCard(cardEl, cardData) {
         if (flippedCards.length === 2 || cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) {
             return;
         }
 
-        cardEl.classList.add('flipped'); // Aplica la rotación 3D
+        cardEl.classList.add('flipped');
         flippedCards.push({ element: cardEl, data: cardData });
 
         if (flippedCards.length === 2) {
@@ -299,7 +315,6 @@
     function checkMatch() {
         const [card1, card2] = flippedCards;
 
-        // Comprobación por ID (Pareja correcta)
         if (card1.data.id === card2.data.id) {
             card1.element.classList.add('matched');
             card2.element.classList.add('matched');
@@ -312,7 +327,6 @@
                 setTimeout(showEndScreen, 800);
             }
         } else {
-            // No hay coincidencia: Voltear de nuevo tras un retraso
             setTimeout(() => {
                 card1.element.classList.remove('flipped');
                 card2.element.classList.remove('flipped');
